@@ -1,0 +1,32 @@
+---
+apps:
+  -
+    app: &Drupal
+      class: Drupal
+      file: Drupal.class.php
+      middlewares: [Logger, Compress, HTTPParser, Superglobals]
+  -
+    app: &FileServe
+      class: AiP\App\FileServe
+      parameters: [/home/stefan/Documents/Projects/Drupal/drupal-on-aip]
+      middlewares: [Logger]
+
+servers:
+  -
+    protocol: HTTP
+    socket: 'tcp://0.0.0.0:8081'
+    min-children: 5
+    max-children: 10
+    app: *Drupal
+  -
+    protocol: HTTP
+    socket: 'tcp://0.0.0.0:8082'
+    min-children: 5
+    max-children: 10
+    app: *FileServe
+  -
+    protocol: SCGI
+    socket: 'tcp://0.0.0.0:9999'
+    min-children: 1
+    max-children: 2
+    app: *Drupal

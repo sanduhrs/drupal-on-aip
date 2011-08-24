@@ -1,0 +1,4 @@
+name = AiP
+description = Support for Appserver in PHP
+package = Other
+core = 7.x

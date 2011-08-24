@@ -1,0 +1,57 @@
+<?php
+/**
+ * @file
+ * Support for Appserver in PHP
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function aip_menu() {
+  $items = array();
+  $items['aip/debug'] = array(
+    'title' => 'Appserver in PHP',
+    'page callback' => 'aip_debug_page',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+
+/**
+ * Implements hook_file_url_alter().
+ */
+function aip_file_url_alter(&$uri) {
+  $uri = str_replace('8081', '8082', $GLOBALS['base_url']) . '/' . drupal_encode_path($uri);
+}
+
+function aip_debug_page() {
+  $c = ++$GLOBALS['aip']['counter'];
+  $m = memory_get_usage();
+  $p = memory_get_peak_usage();
+
+  if ($p > $GLOBALS['aip']['prev_memory_peak']) {
+    $GLOBALS['aip']['prev_memory_peak'] = $p;
+    $GLOBALS['aip']['memory_peak_counter'] = $c;
+  }
+
+  $buffer = '<pre>';
+  $buffer .= 'Hello world! #'.$c."\n";
+  $buffer .= 'Memory usage: '.$m."\n";
+  $buffer .= 'Peak Memory usage: '.$p."\n";
+  $buffer .= 'Memory usage last growed at request#'.$GLOBALS['aip']['memory_peak_counter']."\n\n";
+  $buffer .= "HEADERS:\n".var_export($_SERVER, true)."\n";
+  $buffer .= "COOKIES:\n".var_export($_COOKIE, true)."\n";
+  $buffer .= "SESSION:\n".var_export($_SESSION, true)."\n";
+  $buffer .= "GET:\n".var_export($_GET, true)."\n";
+
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $buffer .= "POST:\n".var_export($_POST, true)."\n";
+    $buffer .= "FILES:\n".var_export($_FILES, true)."\n";
+  }
+
+  $buffer .= '</pre>';
+
+  return $buffer;
+}
