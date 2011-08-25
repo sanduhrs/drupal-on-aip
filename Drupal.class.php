@@ -21,6 +21,10 @@ class Drupal {
     }
 
     public function __invoke($context) {
+      // Support clean URLs
+      $GLOBALS['conf']['clean_url'] = 1;
+      $GLOBALS['_GET']['q'] = substr($context['env']['REQUEST_URI'], 1);
+
       //$GLOBALS['user'] = drupal_anonymous_user();
       $GLOBALS['user'] = user_load(1);
       unset($GLOBALS['theme']);
